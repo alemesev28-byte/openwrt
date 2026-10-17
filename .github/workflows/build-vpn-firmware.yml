@@ -1,7 +1,7 @@
 name: Build Custom OpenWrt (WG + AmneziaWG)
 
 on:
-  workflow_dispatch: # Позволяет запускать сборку вручную по кнопке
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,25 +18,24 @@ jobs:
 
       - name: Download and extract OpenWrt ImageBuilder (23.05.4)
         run: |
-          wget https://downloads.openwrt.org/releases/23.05.4/targets/ramips/mt7621/openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz
-          tar -Jxf openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64.tar.xz
+          wget https://downloads.openwrt.org/releases/23.05.4/targets/ath79/generic/openwrt-imagebuilder-23.05.4-ath79-generic.Linux-x86_64.tar.xz
+          tar -Jxf openwrt-imagebuilder-23.05.4-ath79-generic.Linux-x86_64.tar.xz
 
       - name: Configure custom repository for AmneziaWG
         run: |
-          cd openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64
-          # Добавляем репозиторий Remittor, собранный специально под ядро 23.05.4 (MT7621)
-          echo "src/gz custom_awg https://raw.githubusercontent.com/Remittor/amneziawg-openwrt/master/releases/23.05.4/targets/ramips/mt7621/packages" >> repositories.conf
-          # Отключаем проверку цифровых подписей, чтобы ImageBuilder не выдавал ошибку
+          cd openwrt-imagebuilder-23.05.4-ath79-generic.Linux-x86_64
+          # Добавляем репозиторий Remittor для архитектуры ath79
+          echo "src/gz custom_awg https://raw.githubusercontent.com/Remittor/amneziawg-openwrt/master/releases/23.05.4/targets/ath79/generic/packages" >> repositories.conf
           sed -i 's/option check_signature/# option check_signature/g' repositories.conf
 
       - name: Build Firmware
         run: |
-          cd openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64
-          make image PROFILE="tplink_archer_c6_v2" \
+          cd openwrt-imagebuilder-23.05.4-ath79-generic.Linux-x86_64
+          make image PROFILE="tplink_archer-c6-v2" \
           PACKAGES="-luci -luci-base -ipv6 -odhcp6c -kmod-ipv6 -ppp -ppp-mod-pppoe -kmod-pppoe -kmod-pppox -kmod-ppp -kmod-usb-core -kmod-usb2 wireguard-tools kmod-wireguard amneziawg-tools kmod-amneziawg"
 
       - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-archer-c6-v2-vpn
-          path: openwrt-imagebuilder-*/bin/targets/ramips/mt7621/*-sysupgrade.bin
+          path: openwrt-imagebuilder-*/bin/targets/ath79/generic/*-sysupgrade.bin
