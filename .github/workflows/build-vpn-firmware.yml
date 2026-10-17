@@ -32,7 +32,7 @@ jobs:
       - name: Build Firmware
         run: |
           cd openwrt-imagebuilder-23.05.4-ramips-mt7621.Linux-x86_64
-          make image PROFILE="tplink_archer-c6-v2" \
+          make image PROFILE="tplink_archer_c6_v2" \
           PACKAGES="-luci -luci-base -ipv6 -odhcp6c -kmod-ipv6 -ppp -ppp-mod-pppoe -kmod-pppoe -kmod-pppox -kmod-ppp -kmod-usb-core -kmod-usb2 wireguard-tools kmod-wireguard amneziawg-tools kmod-amneziawg"
 
       - name: Upload firmware artifacts
